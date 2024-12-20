@@ -5,12 +5,6 @@ from django.contrib.auth import authenticate
 from rest_framework import response, status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User
-import logging
-
-
-# Create your views here.
-
-logger = logging.getLogger(__name__)
 
 
 class RegisterAPIView(CreateAPIView):
