@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "orders",
     "drf_yasg",
+    "pizzas",
 ]
 
 MIDDLEWARE = [
@@ -142,6 +143,4 @@ REST_FRAMEWORK = {
 }
 
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=1)
-}
+SIMPLE_JWT = {"ACCESS_TOKEN_LIFETIME": timedelta(days=1)}
