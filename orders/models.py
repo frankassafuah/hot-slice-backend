@@ -17,7 +17,7 @@ class Order(models.Model):
         (CANCELLED, "cancelled"),
     ]
 
-    items = models.JSONField(default=[])
+    items = models.JSONField(default=list)
     total_amount = models.DecimalField(max_digits=5, decimal_places=2)
     delivery_address = models.TextField()
     ordered_by = models.ForeignKey(User, on_delete=models.CASCADE)
