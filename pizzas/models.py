@@ -9,3 +9,11 @@ class Pizza(models.Model):
     image_url = models.URLField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    @property
+    def is_sold_out(self):
+        if self.stock_quantity:
+            return False
+        else:
+            return True
