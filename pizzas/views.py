@@ -14,3 +14,8 @@ class ListPizzasAPIView(generics.ListAPIView):
         if name is not None:
             queryset = queryset.filter(name=name)
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response({"data": serializer.data})

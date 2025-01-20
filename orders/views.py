@@ -17,10 +17,16 @@ def order_list(request):
         order = request.data
         serializer = OrderSerializer(data=order)
         if serializer.is_valid():
-            serializer.save(ordered_by=request.user)
-            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
-
+            try:
+                serializer.save(ordered_by=request.user)
+                return response.Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            except ValueError as e:
+                return response.Response(
+                    {"error": str(e)}, status=status.HTTP_400_BAD_REQUEST
+                )
         else:
             return response.Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
