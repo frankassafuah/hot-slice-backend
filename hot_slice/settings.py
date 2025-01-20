@@ -27,7 +27,9 @@ SECRET_KEY = "django-insecure-65sj4w@kqgras6pj8v56mdwue!efljqwy4*m9^$-e7b3t$)e-t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CORS_ORIGIN_ALLOW_ALL = True
+
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     "orders",
     "drf_yasg",
     "pizzas",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -54,6 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = "hot_slice.urls"
@@ -144,3 +149,9 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {"ACCESS_TOKEN_LIFETIME": timedelta(days=1)}
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Your frontend origin
+    "http://127.0.0.1:3000",  # Alternative local frontend origin
+]
