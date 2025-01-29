@@ -18,7 +18,11 @@ def order_list(request):
         serializer = OrderSerializer(data=order)
         if serializer.is_valid():
             try:
-                serializer.save(ordered_by=request.user)
+                # Assign ordered_by only if the user is logged in
+                if request.user.is_authenticated:
+                    serializer.save(ordered_by=request.user)
+                else:
+                    serializer.save(ordered_by=None)  # Guest order
                 return response.Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
