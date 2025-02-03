@@ -2,6 +2,9 @@ from django.db import models
 from authentication.models import User
 from pizzas.models import Pizza
 from django.core.validators import RegexValidator
+from datetime import timedelta
+from django.utils import timezone
+from functools import reduce
 
 
 class Order(models.Model):
@@ -20,7 +23,8 @@ class Order(models.Model):
     ]
 
     cart = models.JSONField(default=list)
-    total_order_amount = models.DecimalField(max_digits=5, decimal_places=2)
+    order_price = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    total_order_amount = models.DecimalField(max_digits=5, decimal_places=2, blank=True)
     delivery_address = models.TextField(blank=False)
     customer = models.CharField(max_length=255, null=True, blank=True)
     phone_number = models.CharField(
@@ -33,9 +37,13 @@ class Order(models.Model):
         ],
         default="Unknown",
     )
-    ordered_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    ordered_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True
+    )
     priority = models.BooleanField(default=False)
+    priority_price = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    estimated_delivery = models.DateTimeField(blank=True, null=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
@@ -56,7 +64,28 @@ class Order(models.Model):
             except Pizza.DoesNotExist:
                 raise ValueError(f"Pizza with id {item_id} does not exist")
 
+    def set_estimated_delivery(self):
+        now = timezone.now()
+        base_time = timedelta(minutes=60)
+
+        if self.priority:
+            base_time = timedelta(minutes=30)
+        self.estimated_delivery = now + base_time
+
+    def set_total_order_amount(self):
+        order_price = reduce(lambda x, y: x + y.get("total_price", 0), self.cart, 0)
+        total_order_amount = order_price
+        if self.priority:
+            priority_price = order_price * 0.2
+            total_order_amount = order_price + priority_price
+            self.priority_price = priority_price
+
+        self.order_price = order_price
+        self.total_order_amount = total_order_amount
+
     def save(self, **kwargs):
-        if self.pk is None:  # Only reduce stock on initial order creation
+        if self.pk is None:  # Only on initial order creation
             self.reduce_stock()
+            self.set_estimated_delivery()
+            self.set_total_order_amount()
         super().save(**kwargs)
